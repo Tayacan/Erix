@@ -9,10 +9,10 @@ import android.widget.TextView;
 
 public class ErixActivity extends Activity implements android.view.GestureDetector.OnGestureListener {
     /** Called when the activity is first created. */
-    
+
 	LinearLayout layout;
 	TextView flingDetector;
-	
+
 	private GestureDetector gestureScanner;
 	
 	@Override
