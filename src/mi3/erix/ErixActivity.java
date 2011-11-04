@@ -1,6 +1,7 @@
 package mi3.erix;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -12,6 +13,7 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 
 	LinearLayout layout;
 	TextView flingDetector;
+	DrawView drawView; 
 
 	private GestureDetector gestureScanner;
 	
@@ -28,19 +30,16 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
         flingDetector.setText("No flings yet.");
         layout.addView(flingDetector);
         
+        drawView = new DrawView(this);
+        drawView.setBackgroundColor(Color.WHITE);
+        layout.addView(drawView);
+        
         setContentView(layout);
     }
 
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		return gestureScanner.onTouchEvent(me);
-	}
-	
-	@Override
-	public boolean onDown(MotionEvent e) {
-		// TODO Auto-generated method stub
-		//flingDetector.setText("Down");
-		return false;
 	}
 
 	@Override
@@ -59,15 +58,31 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 			if(velocityX <= 0) {
 				dir = -1; // Skal bruges senere.
 				flingDetector.setText("Left!");
+				if(drawView.currentX >= 10) {
+					drawView.currentX -= 10;
+					drawView.invalidate();
+				}
 			} else {
 				flingDetector.setText("Right!");
+				if(drawView.currentX <= 100) {
+					drawView.currentX += 10;
+					drawView.invalidate();
+				}
 			}
 		} else {
 			if(velocityY <= 0) {
 				dir = -1; // Skal bruges senere.
 				flingDetector.setText("Up!");
+				if(drawView.currentY >= 10) {
+					drawView.currentY -= 10;
+					drawView.invalidate();
+				}
 			} else {
 				flingDetector.setText("Down!");
+				if(drawView.currentY <= 100) {
+					drawView.currentY += 10;
+					drawView.invalidate();
+				}
 			}
 		}
 		return true;
@@ -78,6 +93,13 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 	 * vi implementerer OnGestureListener.
 	 */
 
+	@Override
+	public boolean onDown(MotionEvent e) {
+		// TODO Auto-generated method stub
+		//flingDetector.setText("Down");
+		return false;
+	}
+	
 	@Override
 	public void onLongPress(MotionEvent e) {
 		// TODO Auto-generated method stub
