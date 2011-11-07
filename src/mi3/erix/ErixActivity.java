@@ -3,6 +3,7 @@ package mi3.erix;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
@@ -17,6 +18,12 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 
 	private GestureDetector gestureScanner; // Detects flings/swipes.
 	
+	// For moving stuff on the canvas.
+	protected boolean running = false;
+	Thread drawThread = null;
+	
+	Handler drawHandler = new Handler (); // Handler to move our object every second.
+	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,15 +36,50 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
         layout.setOrientation(LinearLayout.VERTICAL);
         
         flingDetector = new TextView(this);
-        flingDetector.setText("No flings yet - " + System.currentTimeMillis()); // Debugging
+        flingDetector.setText("No flings yet"); // Debugging
         layout.addView(flingDetector);
         
         drawView = new DrawView(this);
         drawView.setBackgroundColor(Color.WHITE);
         layout.addView(drawView);
         
+        startDrawing(); // Start the thread that takes care of moving our object.
+        
         setContentView(layout); // We don't care about R.java
     }
+	
+	/*
+	 * This is the thread that moves the object.
+	 * It should be updated to check for direction,
+	 * which again involves changes in the DrawView
+	 * class. Right now it's just an example.
+	 */
+	public void startDrawing () {
+		Runnable runner = new Runnable () {
+
+			@Override
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						flingDetector.setText("Something went wrong with the... waiting.");
+					}
+					drawHandler.post(new Runnable () {
+
+						@Override
+						public void run() {
+							drawView.currentX += 10;
+							drawView.invalidate();
+						}
+						
+					});
+				}
+			}
+			
+		};
+		new Thread(runner).start();
+	}
 
 	// Make sure to intercept all touch events so we can run our own code.
 	@Override

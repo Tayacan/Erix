@@ -13,6 +13,8 @@ public class DrawView extends View {
 	
 	public int currentX = 0;
 	public int currentY = 0;
+	
+	
 
 	public DrawView(Context context) {
 		super(context);
