@@ -1,5 +1,8 @@
 package mi3.erix;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class TileSet {
 	/*
 	 * This class is supposed to handle 
@@ -9,6 +12,8 @@ public class TileSet {
 	
 	public int x = 0;
 	public int y = 0;
+	
+	public Map<String, Integer> tileStatus = new HashMap<String,Integer>();
 	
 	// Status koder
 	public static final int PLAYER = 1;
@@ -26,19 +31,31 @@ public class TileSet {
 	public String[][] coords = null;
 	public int[][] status = null;
 	
-	public void makeTiles () {
+	// Constructor version 1
+	public TileSet() {
+		makeTiles();
+		setTiles();
+	}
+	
+	// Constructor version 2
+	public TileSet(int x, int y) {
+		makeTiles(x,y);
+		setTiles();
+	}
+	
+	private void makeTiles () {
 		coords = new String[this.x][this.y];
 		status = new int[this.x][this.y];
 	}
 	
-	public void makeTiles (int x,int y) {
+	private void makeTiles (int x,int y) {
 		this.x = x;
 		this.y = 0;
 		coords = new String[this.x][this.y];
 		status = new int[this.x][this.y];
 	}
 	
-	public boolean setTiles () {
+	private boolean setTiles () {
 		if(coords == null || status == null || this.x < 1 || this.y < 1) {
 			return false; // Hvis makeTiles ikke er blevet kaldt endnu.
 		}
@@ -48,6 +65,7 @@ public class TileSet {
 			for(int j = 0; j < this.y; j++) {
 				coords[i][j] = ((j*10)-10) + "x" + ((i*10)-10); // Hardcodet og grimt
 				status[i][j] = TileSet.EMPTY;
+				tileStatus.put(coords[i][j], status[i][j]);
 			}
 		}
 		

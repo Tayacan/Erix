@@ -21,6 +21,9 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 	DisplayMetrics metrics = new DisplayMetrics();
 	int screenWidth;
 	int screenHeight;
+	
+	// Tileset using constructor v2.
+	private TileSet tileset = new TileSet(screenWidth / 10, screenHeight / 10);
 
 	private GestureDetector gestureScanner; // Detects flings/swipes.
 	
@@ -59,6 +62,9 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
         drawView.setBackgroundColor(Color.WHITE);
         layout.addView(drawView);
         
+        // Vi vil gerne vide hvor spilleren er fra starten.
+        tileset.tileStatus.put(drawView.currentX + "x" + drawView.currentY,TileSet.PLAYER);
+        
         startDrawing(); // Start the thread that takes care of moving our object.
         
         setContentView(layout); // We don't care about R.java
@@ -66,9 +72,8 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 	
 	/*
 	 * This is the thread that moves the object.
-	 * It should be updated to check for direction,
-	 * which again involves changes in the DrawView
-	 * class. Right now it's just an example.
+	 * It sends messages, in the form of Runnables,
+	 * to our Handler.
 	 */
 	public void startDrawing () {
 		Runnable runner = new Runnable () {
@@ -85,14 +90,15 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 
 						@Override
 						public void run() {
+							tileset.tileStatus.put(drawView.currentX / 10 + "x" + drawView.currentY / 10, TileSet.LINE);
 							if (drawView.currentX + drawView.speed[0] >= 0 && drawView.currentX + drawView.speed[0] <= screenWidth - 10) {
 								drawView.currentX += drawView.speed[0];
 							}
 							if (drawView.currentY + drawView.speed[1] >= 0 && drawView.currentY + drawView.speed[1] <= screenHeight - 10) {
 								drawView.currentY += drawView.speed[1];
 							}
-							flingDetector.setText(drawView.currentX + ", " + drawView.currentY);
-							drawView.invalidate();
+							tileset.tileStatus.put(drawView.currentX / 10 + "x" + drawView.currentY / 10, TileSet.PLAYER);
+							drawView.invalidate(); // Stuff changed, we should draw it all again.
 						}
 						
 					});
@@ -128,22 +134,22 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 		if(xMov >= yMov) { // x axis
 			if(velocityX <= 0) { // Check the original velocity to get the direction
 				flingDetector.setText("Left!");
-				drawView.speed[0] = -5;
+				drawView.speed[0] = -10;
 				drawView.speed[1] = 0;
 			} else { // Right
 				flingDetector.setText("Right!");
-				drawView.speed[0] = 5;
+				drawView.speed[0] = 10;
 				drawView.speed[1] = 0;
 			}
 		} else { // y axis
 			if(velocityY <= 0) { // Moving upwards.
 				flingDetector.setText("Up!");
 				drawView.speed[0] = 0;
-				drawView.speed[1] = -5;
+				drawView.speed[1] = -10;
 			} else { // Down.
 				flingDetector.setText("Down!");
 				drawView.speed[0] = 0;
-				drawView.speed[1] = 5;
+				drawView.speed[1] = 10;
 			}
 		}
 		return true; // Tells the program that yes, we are using this action.
