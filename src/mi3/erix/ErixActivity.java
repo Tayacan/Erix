@@ -1,5 +1,7 @@
 package mi3.erix;
 
+import java.util.Map;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -91,6 +93,13 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 						@Override
 						public void run() {
 							tileset.tileStatus.put(drawView.currentX / 10 + "x" + drawView.currentY / 10, TileSet.LINE);
+							// Set the coords for tiles that need to be colored gray.
+							for (Map.Entry<String, Integer> entry : tileset.tileStatus.entrySet()) {
+								if(entry.getValue() == TileSet.LINE) {
+									drawView.lineCoords.add(entry.getKey());
+								}
+							}
+							
 							if (drawView.currentX + drawView.speed[0] >= 0 && drawView.currentX + drawView.speed[0] <= screenWidth - 10) {
 								drawView.currentX += drawView.speed[0];
 							}
