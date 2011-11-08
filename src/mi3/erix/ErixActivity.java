@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,6 +18,9 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 	LinearLayout layout; 
 	TextView flingDetector; // For debugging.
 	DrawView drawView; // For the actual game.
+	DisplayMetrics metrics = new DisplayMetrics();
+	int screenWidth;
+	int screenHeight;
 
 	private GestureDetector gestureScanner; // Detects flings/swipes.
 	
@@ -28,6 +34,11 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        // Hide the title and notification bar
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        final Window window = getWindow();
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
         // For the purpose of detecting flings.
         gestureScanner = new GestureDetector(this);
         
@@ -35,9 +46,14 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
         layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         
+        // Get the screen size for later
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        screenWidth = metrics.widthPixels;
+        screenHeight = metrics.heightPixels;
+        
         flingDetector = new TextView(this);
-        flingDetector.setText("No flings yet"); // Debugging
-        layout.addView(flingDetector);
+        flingDetector.setText(screenWidth + ", " + screenHeight); // Debugging
+        //layout.addView(flingDetector);
         
         drawView = new DrawView(this);
         drawView.setBackgroundColor(Color.WHITE);
@@ -61,7 +77,7 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 			public void run() {
 				while(true) {
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(100);
 					} catch (InterruptedException e) {
 						flingDetector.setText("Something went wrong with the... waiting.");
 					}
@@ -69,7 +85,13 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 
 						@Override
 						public void run() {
-							drawView.currentX += 10;
+							if (drawView.currentX + drawView.speed[0] >= 0 && drawView.currentX + drawView.speed[0] <= screenWidth - 10) {
+								drawView.currentX += drawView.speed[0];
+							}
+							if (drawView.currentY + drawView.speed[1] >= 0 && drawView.currentY + drawView.speed[1] <= screenHeight - 10) {
+								drawView.currentY += drawView.speed[1];
+							}
+							flingDetector.setText(drawView.currentX + ", " + drawView.currentY);
 							drawView.invalidate();
 						}
 						
@@ -106,30 +128,22 @@ public class ErixActivity extends Activity implements android.view.GestureDetect
 		if(xMov >= yMov) { // x axis
 			if(velocityX <= 0) { // Check the original velocity to get the direction
 				flingDetector.setText("Left!");
-				if(drawView.currentX >= 10) { // Stop at the left edge
-					drawView.currentX -= 10; // Give the onDraw function a new x.
-					drawView.invalidate(); // Refresh the screen.
-				}
+				drawView.speed[0] = -5;
+				drawView.speed[1] = 0;
 			} else { // Right
 				flingDetector.setText("Right!");
-				if(drawView.currentX <= 100) { // Stop after 100 pixel - change later.
-					drawView.currentX += 10; // New x value.
-					drawView.invalidate(); // Refresh screen.
-				}
+				drawView.speed[0] = 5;
+				drawView.speed[1] = 0;
 			}
 		} else { // y axis
 			if(velocityY <= 0) { // Moving upwards.
 				flingDetector.setText("Up!");
-				if(drawView.currentY >= 10) { // Stop at the top of the screen.
-					drawView.currentY -= 10; // New y value.
-					drawView.invalidate(); // Refresh screen.
-				}
+				drawView.speed[0] = 0;
+				drawView.speed[1] = -5;
 			} else { // Down.
 				flingDetector.setText("Down!");
-				if(drawView.currentY <= 100) { // Stop after 100 pixel - change later.
-					drawView.currentY += 10; // New y value.
-					drawView.invalidate(); // Refresh screen.
-				}
+				drawView.speed[0] = 0;
+				drawView.speed[1] = 5;
 			}
 		}
 		return true; // Tells the program that yes, we are using this action.

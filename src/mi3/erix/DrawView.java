@@ -14,7 +14,7 @@ public class DrawView extends View {
 	public int currentX = 0;
 	public int currentY = 0;
 	
-	
+	public int[] speed = new int[2];
 
 	public DrawView(Context context) {
 		super(context);
